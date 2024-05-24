@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "cheerio": "^1.0.0-rc.12",
+        "flowbite": "^2.3.0",
         "mysql": "^2.18.1"
     }
 }
