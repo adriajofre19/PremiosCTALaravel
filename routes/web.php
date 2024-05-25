@@ -27,6 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/partits', [PartitsController::class, 'index'])->name('partits.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/partits', [PartitsController::class, 'index'])->name('partits.index');
+    Route::get('/arbitres', [PartitsController::class, 'arbitres'])->name('arbitres.index');
+});
+
+
 
 require __DIR__.'/auth.php';

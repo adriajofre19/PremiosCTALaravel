@@ -17,4 +17,8 @@ class PartitsController extends Controller
             'partits' => $partits
         ]);
     }
+
+    public function arbitres(){
+        return Inertia::render('Arbitres');
+    }
 }

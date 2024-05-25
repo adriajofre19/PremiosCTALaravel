@@ -2,39 +2,93 @@
 import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { defineProps } from 'vue';
+import axios from 'axios';
 
-const props = defineProps({
-    partits: {
-        type: Array,
-        required: true
-    }
-});
 
-console.log(props.partits);
 
+let partits = [];
 let arbitres = ref([]);
-arbitres.value = props.partits.map(partit => partit.arbitre);
-arbitres.value = arbitres.value.filter((arbitre, index) => arbitres.value.indexOf(arbitre) === index);
+
+// Fetch the partits data from partits.json
+axios.get('partits.json')
+    .then(response => {
+        console.log(response.data);
+        partits = response.data;
+        arbitres.value = partits.map(partit => partit.arbitre);
+        arbitres.value = arbitres.value.filter((arbitre, index) => arbitres.value.indexOf(arbitre) === index);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+console.log(partits);
+console.log(arbitres.value);
 
 let arbitreSeleccionat = ref(''); // Variable per emmagatzemar l'arbitre seleccionat
 let partitsArbitreSeleccionat = ref([]); // Variable per emmagatzemar els partits de l'arbitre seleccionat
 
+let totalPartits = 0;
+let totalAmarillesJugadors = 0;
+let totalAmarillesCuerpoTecnico = 0;
+let totalRojasJugadors = 0;
+let totalRojasCuerpoTecnico = 0;
+let totalVicoriasLocales = 0;
+let totalVicoriasVisitantes = 0;
+let totalEmpates = 0;
+
+function limitarDecimals(num) {
+    return num.toFixed(2);
+}
+
 // Mètode per filtrar els partits segons l'arbitre seleccionat
 const filtrarPartits = () => {
-    partitsArbitreSeleccionat.value = props.partits.filter(partit => partit.arbitre === arbitreSeleccionat.value);
-}
+    partitsArbitreSeleccionat.value = partits.filter(partit => partit.arbitre === arbitreSeleccionat.value);
+    totalPartits = 0;
+    totalAmarillesJugadors = 0;
+    totalAmarillesCuerpoTecnico = 0;
+    totalRojasJugadors = 0;
+    totalRojasCuerpoTecnico = 0;
+    totalVicoriasLocales = 0;
+    totalVicoriasVisitantes = 0;
+    totalEmpates = 0;
+    
+
+    partitsArbitreSeleccionat.value.forEach(partit => {
+        totalPartits += 1;
+        totalAmarillesJugadors += partit.AmarillasJugadoresLocal + partit.AmarillasJugadoresVisitante;
+        totalAmarillesCuerpoTecnico += partit.AmarillasCuerpoTecnicoLocal + partit.AmarillasCuerpoTecnicoVisitante;
+        totalRojasJugadors += partit.RojasJugadoresLocal + partit.RojasJugadoresVisitante;
+        totalRojasCuerpoTecnico += partit.RojasCuerpoTecnicoLocal + partit.RojasCuerpoTecnicoVisitante;
+        if (partit.ganador === 'Local') {
+            totalVicoriasLocales += 1;
+        } else if (partit.ganador === 'Visitante') {
+            totalVicoriasVisitantes += 1;
+        } else {
+            totalEmpates += 1;
+        }
+    });
+    }
 </script>
 
 <template>
-    <AuthenticatedLayout>
-        <select v-model="arbitreSeleccionat" @change="filtrarPartits">
-            <option value="">Tots els àrbitres</option>
-            <!-- Loop through the arbitres array and generate an option for each one -->
-            <option v-for="arbitre in arbitres" :key="arbitre.id" :value="arbitre">{{ arbitre }}</option>
-        </select>
 
-        <div class="relative overflow-x-auto">
-            <table class="text-sm text-left rtl:text-right text-gray-500">
+<AuthenticatedLayout>
+
+<form class="max-w-sm mx-auto mt-12">
+  <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">Selecciona un àrbitre</label>
+  <select v-model="arbitreSeleccionat" @change="filtrarPartits" id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+        <option v-for="arbitre in arbitres" :key="arbitre.id" :value="arbitre">{{ arbitre }}</option>
+  </select>
+</form>
+
+<section v-if="partitsArbitreSeleccionat != ''">
+    <div class="py-16">
+        <div class="mx-auto px-6 max-w-full text-gray-500">
+            <div class="relative">
+                <div class="relative z-10 grid gap-3 grid-cols-6">
+                    <div class="col-span-full lg:col-span-4 overflow-hidden flex relative p-8 rounded-xl bg-white border border-gray-200">
+                        <div class="w-full relative overflow-x-auto">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
                 <thead class="text-xs bg-gray-800 text-white">
                     <tr>
                         <th scope="col" class="px-6 py-3">
@@ -58,10 +112,10 @@ const filtrarPartits = () => {
                 <tbody>
                     <tr v-for="partido in partitsArbitreSeleccionat" :key="partido.id" class="bg-white border-b">
                         <td class="px-6 py-4">
-                            {{ partido.jornada }}
+                            {{ partido.Jornada }}
                         </td>
                         <td class="px-6 py-4">
-                            {{ partido.equipoLocal }} <span class="bg-gray-300 p-1 rounded-md mx-2">{{ partido.resLocal
+                            {{ partido.equipoLocal }} <span class="bg-gray-300 p-1 rounded-md mx-2 px-2">{{ partido.resLocal
                                 }} -
                                 {{
                                     partido.resVisitant }} </span> {{
@@ -106,19 +160,122 @@ const filtrarPartits = () => {
                 </tbody>
             </table>
         </div>
+                    </div>
+                    <div class="col-span-full sm:col-span-3 lg:col-span-2 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200">
+                        
 
+<div class="relative overflow-x-auto">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+        <thead class="text-xs bg-gray-800 text-white">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Cantidad
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Media
+                        </th>
+                    </tr>
+                </thead>
+        <tbody>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Amarillas Jugadores
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalAmarillesJugadors }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalAmarillesJugadors / totalPartits) }} / partit
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Amarillas Cuerpo Técnico
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalAmarillesCuerpoTecnico }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalAmarillesCuerpoTecnico / totalPartits) }} / partit
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Rojas Jugadores
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalRojasJugadors }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalRojasJugadors / totalPartits) }} / partit
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Rojas Cuerpo Técnico
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalRojasCuerpoTecnico }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalRojasCuerpoTecnico / totalPartits) }} / partit
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Vicorias Locales
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalVicoriasLocales }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalVicoriasLocales / totalPartits * 100)}} %
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Vicorias Visitantes
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalVicoriasVisitantes }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalVicoriasVisitantes / totalPartits * 100)}} %
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Empates
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalEmpates }}
+                </td> 
+                <td class="px-6 py-4">
+                    {{ limitarDecimals(totalEmpates / totalPartits * 100)}} %
+                </td> 
+            </tr>
+            <tr class="bg-white border-b ">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    Total Partits
+                </th>
+                <td class="px-6 py-4">
+                    {{ totalPartits }}
+                </td> 
+            </tr>
+        </tbody>
+    </table>
+</div>
 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
+</AuthenticatedLayout>
 
-
-    </AuthenticatedLayout>
 </template>
-
-<style scoped>
-.yellow-card {
-    background-color: yellow;
-    width: 20px;
-    height: 25px;
-    color: black;
-}
-</style>
