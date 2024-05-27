@@ -8,16 +8,6 @@ use Inertia\Inertia;
 use App\Http\Controllers\PartitsController;
 use App\Models\Partit;
 
-/*
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-}); */
-
 Route::get('/', [PartitsController::class, 'index'])->name('partits.index');
 Route::get('/arbitres', [PartitsController::class, 'arbitres'])->name('arbitres.index');
 
