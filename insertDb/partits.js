@@ -18,8 +18,6 @@ async function obtenerPartido() {
                 const html = response.data;
                 const $ = cheerio.load(html);
 
-
-
                 $('.linia').each((index, element) => {
                     const arbitreCamp = $(element).find('td').eq(5).text().trim();
                     const camp = $(element).find('td').eq(5).find('a').text().trim();
@@ -153,6 +151,7 @@ async function getActa(url) {
 
     let arbitre = $('th:contains("Àrbitre")').closest('table').find('td').eq(1).text().trim();
     arbitre = arbitre.replace('(Figueres)', '').trim();
+    arbitre = arbitre.replace('(Girona)', '').trim();
     console.log(arbitre);
 
     let resultat = $('.acta-marcador').find('span').text().trim();
@@ -215,8 +214,6 @@ async function getActa(url) {
 
 
     createJson(data);
-
-    //insertInDataBase([data]);
 }
 
 obtenerPartido();
@@ -226,7 +223,7 @@ function createJson(info) {
     let json = JSON.stringify(info, null, 2);
 
     // afegir al fitxer json, separa els diferents partits amb una coma i un salt de línia, posa tota la informació entre []
-    fs.appendFile('partits.json', json + ',\n', (err) => {
+    fs.appendFile('public/partits.json', json + ',\n', (err) => {
         if (err) {
             console.log(err);
         } else {
@@ -263,28 +260,4 @@ function CambiarNombreEquipo(equipo) {
             break;
     }
     return equipo;
-}
-
-function insertInDataBase(partits) {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '1234',
-        database: 'premiscta'
-    });
-
-    partits.forEach(partit => {
-
-        // si el camp equipoLocal o equipoVisitant conté un ' cambia-ho per un espai
-        partit.equipoLocal = partit.equipoLocal.replace(/'/g, '`');
-        partit.equipoVisitant = partit.equipoVisitant.replace(/'/g, '`');
-
-        const query = `INSERT INTO partits (competicio, grup, jornada, equipoLocal, equipoVisitant, resLocal, resVisitant, ganador, arbitre, AmarillasJugadoresLocal, RojasJugadoresLocal, AmarillasCuerpoTecnicoLocal,RojasCuerpoTecnicoLocal,AmarillasJugadoresVisitante,RojasJugadoresVisitante, AmarillasCuerpoTecnicoVisitante,RojasCuerpoTecnicoVisitante ) VALUES ('${partit.competicio}', '${partit.grup}', '${partit.Jornada}', '${partit.equipoLocal}', '${partit.equipoVisitant}', ${partit.resLocal}, ${partit.resVisitant}, '${partit.ganador}', '${partit.arbitre}', ${partit.AmarillasJugadoresLocal}, ${partit.RojasJugadoresLocal}, ${partit.AmarillasCuerpoTecnicoLocal}, ${partit.RojasCuerpoTecnicoLocal}, ${partit.AmarillasJugadoresVisitante}, ${partit.RojasJugadoresVisitante}, ${partit.AmarillasCuerpoTecnicoVisitante}, ${partit.RojasCuerpoTecnicoVisitante})`;
-
-        connection.query(query, (error, results) => {
-            if (error) throw error;
-            console.log('Insert successful');
-        });
-    });
-
 }

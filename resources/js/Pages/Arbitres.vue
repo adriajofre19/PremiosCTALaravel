@@ -1,176 +1,201 @@
 <script setup>
 import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { defineProps } from 'vue';
 import axios from 'axios';
+import { onMounted } from 'vue';
+import { initFlowbite } from 'flowbite';
 
-let partits = [];
+onMounted(() => {
+    initFlowbite();
+});
+
+let partits = ref([]);
 let arbitres = ref([]);
-let arbitresPartits = ref([]);
+let partitsArbitre = ref([]);
+let arbitresSeleccionats = ref([]);
+let estadistiquesArbitres = ref([]);
 
-// Fetch the partits data from partits.json
-axios.get('partits.json')
-    .then(response => {
-        partits = response.data;
-        arbitres.value = partits.map(partit => partit.arbitre);
-        arbitres.value = arbitres.value.filter((arbitre, index) => arbitres.value.indexOf(arbitre) === index);
-    })
-    .catch(error => {
-        console.error(error);
-    });
+axios.get('partits.json').then(response => {
+    partits.value = response.data;
+    arbitres.value = partits.value.map(partit => partit.arbitre);
+    arbitres.value = arbitres.value.filter((arbitre, index) => arbitres.value.indexOf(arbitre) === index);
 
-let selectedArbitres = ref([]); // Variable per emmagatzemar els àrbitres seleccionats
-let selectArbitre = (arbitre) => {
-    arbitreSeleccionat.value = arbitre;
-    partitsArbitreSeleccionat.value = partits.filter(partit => partit.arbitre === arbitre);
-    
-    console.log(partitsArbitreSeleccionat.value);
+});
+
+let addArbitre = (arbitre) => {
+    if (arbitresSeleccionats.value.includes(arbitre)) {
+        arbitresSeleccionats.value = arbitresSeleccionats.value.filter(a => a !== arbitre);
+    } else {
+        arbitresSeleccionats.value.push(arbitre);
+    }
 };
 
-let partitsArbitresSeleccionats = ref([]); // Variable per emmagatzemar els partits amb els àrbitres seleccionats
+const filtrarPartits = () => {
+    partitsArbitre.value = partits.value.filter(partit => arbitresSeleccionats.value.includes(partit.arbitre));
+    estadistiquesArbitres.value = arbitresSeleccionats.value.map(arbitre => {
+        return {
+            arbitre: arbitre,
+            numpartits: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).length,
+            amarillasJugadoresLocal: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.AmarillasJugadoresLocal, 0),
+            rojasJugadoresLocal: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.RojasJugadoresLocal, 0),
+            amarillasCuerpoTecnicoLocal: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.AmarillasCuerpoTecnicoLocal, 0),
+            rojasCuerpoTecnicoLocal: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.RojasCuerpoTecnicoLocal, 0),
+            amarillasJugadoresVisitante: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.AmarillasJugadoresVisitante, 0),
+            rojasJugadoresVisitante: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.RojasJugadoresVisitante, 0),
+            amarillasCuerpoTecnicoVisitante: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.AmarillasCuerpoTecnicoVisitante, 0),
+            rojasCuerpoTecnicoVisitante: partitsArbitre.value.filter(partit => partit.arbitre === arbitre).reduce((acc, partit) => acc + partit.RojasCuerpoTecnicoVisitante, 0),
+            victoriasLocal: partitsArbitre.value.filter(partit => partit.arbitre === arbitre && partit.ganador === 'Local').length,
+            victoriasVisitante: partitsArbitre.value.filter(partit => partit.arbitre === arbitre && partit.ganador === 'Visitante').length,
+            empates: partitsArbitre.value.filter(partit => partit.arbitre === arbitre && partit.ganador === 'Empate').length
+            
+        };
 
- // Variable per emmagatzemar les estadístiques dels àrbitres seleccionats
-
-let filtrarPartits = () => {
-    arbitresPartits.value = partits.filter(partit => selectedArbitres.value.includes(partit.arbitre));
-    console.log(arbitresPartits.value);
-    // agafar les estadístiques dels àrbitres seleccionats
-
-    let arbitresSeleccionats = selectedArbitres.value;
-    console.log(arbitresSeleccionats);
-
-    let estadistiquesArbitres = [];
-    // per cada àrbitre seleccionat calcular les estadístiques
-    arbitresSeleccionats.forEach(arbitre => {
-        let partitsArbitre = arbitresPartits.value.filter(partit => partit.arbitre === arbitre);
-        console.log(partitsArbitre);
-        let totalAmarillasJugadoresLocal = 0;
-        let totalAmarillasJugadoresVisitante = 0;
-        let totalAmarillasCuerpoTecnicoLocal = 0;
-        let totalAmarillasCuerpoTecnicoVisitante = 0;
-        let totalRojasJugadoresLocal = 0;
-        let totalRojasJugadoresVisitante = 0;
-        let totalRojasCuerpoTecnicoLocal = 0;
-        let totalRojasCuerpoTecnicoVisitante = 0;
-        let totalVictoriesLocal = 0;
-        let totalVictoriesVisitante = 0;
-        let totalEmpats = 0;
-        let numpartits = partitsArbitre.length;
-
-        partitsArbitre.forEach(partit => {
-            totalAmarillasJugadoresLocal += partit.amarillasJugadoresLocal;
-            totalAmarillasJugadoresVisitante += partit.amarillasJugadoresVisitante;
-            totalAmarillasCuerpoTecnicoLocal += partit.amarillasCuerpoTecnicoLocal;
-            totalAmarillasCuerpoTecnicoVisitante += partit.amarillasCuerpoTecnicoVisitante;
-            totalRojasJugadoresLocal += partit.rojasJugadoresLocal;
-            totalRojasJugadoresVisitante += partit.rojasJugadoresVisitante;
-            totalRojasCuerpoTecnicoLocal += partit.rojasCuerpoTecnicoLocal;
-            totalRojasCuerpoTecnicoVisitante += partit.rojasCuerpoTecnicoVisitante;
-            if (partit.guanyador === 'local') {
-                totalVictoriesLocal++;
-            } else if (partit.guanyador === 'visitant') {
-                totalVictoriesVisitante++;
-            } else {
-                totalEmpats++;
-            }
-        });
-
-        estadistiquesArbitres.push({
-            arbitre,
-            numpartits,
-            totalAmarillasJugadoresLocal,
-            totalAmarillasJugadoresVisitante,
-            totalAmarillasCuerpoTecnicoLocal,
-            totalAmarillasCuerpoTecnicoVisitante,
-            totalRojasJugadoresLocal,
-            totalRojasCuerpoTecnicoLocal,
-            totalRojasJugadoresVisitante,
-            totalRojasCuerpoTecnicoVisitante,
-            totalVictoriesLocal,
-            totalVictoriesVisitante,
-            totalEmpats
-        });
     });
-
-    console.log(estadistiquesArbitres);
-
-   
 };
 
- 
-
+function limitarDecimals(num) {
+    return num.toFixed(2);
+}
 
 </script>
 
 <template>
 
-<AuthenticatedLayout>
-<div class="max-w-sm mx-auto mt-12">
-<button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300" type="button">Seleccionar àrbitres <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-  </svg></button>
-  <button style="background-color: black; color: white; margin-left: 20px; padding: 10px; border-radius: 10px; font-size: 15px;" @click="getSelectedArbitres">Comparar àrbitres</button>
-  </div>
+    <AuthenticatedLayout>
 
-<!-- Dropdown menu -->
-<div id="dropdownSearch" class="z-10 hidden bg-white rounded-lg shadow w-60">
-    <ul class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 " aria-labelledby="dropdownSearchButton">
-      <li v-for="arbitre in arbitres" :key="arbitre">
-        <div class="flex items-center p-2 rounded hover:bg-gray-100">
-          <input type="checkbox" :id="arbitre" :value="arbitre" v-model="selectedArbitres" @change="filtrarPartits" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-          <label for="checkbox-item-11" class="w-full ms-2 text-sm font-medium text-gray-900 rounded ">{{ arbitre }}</label>
+        <div class="max-w-sm mx-auto mt-12">
+            <button id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
+                class="text-gray-600 bg-white border border-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
+                type="button">Seleccionar àrbitres <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
+            <button
+                class="text-white bg-black font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center ml-4"
+                type="button" @click="filtrarPartits">Filtrar partits</button>
         </div>
-      </li>
-    </ul>
-</div>
+
+        <!-- Dropdown menu -->
+        <div id="dropdownBgHover" class="z-10 hidden w-70 bg-white rounded-lg shadow h-64 overflow-x-auto">
+            <ul class="p-3 space-y-1 text-sm text-gray-700" aria-labelledby="dropdownBgHoverButton">
+                <li v-for="arbitre in arbitres">
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100">
+                        <input id="checkbox-item-4" type="checkbox" class="w-4 h-4 rounded text-blue-600"
+                            @click="addArbitre(arbitre)">
+
+                        <label for="checkbox-item-4"
+                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">{{ arbitre
+                            }}</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="max-w-full relative overflow-x-auto mt-8">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs bg-gray-800 text-white">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Arbitro
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Amarillas Jugadores
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Rojas Jugadores
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Amarillas Cuerpo Técnico
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Rojas Cuerpo Técnico
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Victorias Local
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Victorias Visitante
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Empates
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Número partidos
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="estadistiquesArbitre in estadistiquesArbitres" class="bg-white border-b">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items center">
+                                <div class="text-sm font-medium">
+                                    {{ estadistiquesArbitre.arbitre }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="bg-yellow-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+                                <span class="mt-1">{{ estadistiquesArbitre.amarillasJugadoresLocal + estadistiquesArbitre.amarillasJugadoresVisitante }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals((estadistiquesArbitre.amarillasJugadoresLocal + estadistiquesArbitre.amarillasJugadoresVisitante) / estadistiquesArbitre.numpartits) }} / partit</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="bg-red-500 py-1 px-3 mr-2 text-black rounded-md"></span>
+                                <span class="mt-1">{{ estadistiquesArbitre.rojasJugadoresLocal + estadistiquesArbitre.rojasJugadoresVisitante }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals((estadistiquesArbitre.rojasJugadoresLocal + estadistiquesArbitre.rojasJugadoresVisitante) / estadistiquesArbitre.numpartits) }} / partit</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="bg-yellow-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+                                <span class="mt-1">{{ estadistiquesArbitre.amarillasCuerpoTecnicoLocal + estadistiquesArbitre.amarillasCuerpoTecnicoVisitante }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals((estadistiquesArbitre.amarillasCuerpoTecnicoLocal + estadistiquesArbitre.amarillasCuerpoTecnicoVisitante) / estadistiquesArbitre.numpartits) }} / partit</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="bg-red-500 py-1 px-3 mr-2 text-black rounded-md"></span>
+                                <span class="mt-1">{{ estadistiquesArbitre.rojasCuerpoTecnicoLocal + estadistiquesArbitre.rojasCuerpoTecnicoVisitante }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals((estadistiquesArbitre.rojasCuerpoTecnicoLocal + estadistiquesArbitre.rojasCuerpoTecnicoVisitante) / estadistiquesArbitre.numpartits) }} / partit</span>
+                            </div>
+                        </td>
 
 
-<table>
-    <thead>
-        <tr>
-            <th>Àrbitre</th>
-            <th>Partits</th>
-            <th>Amarilles Jugadors Local</th>
-            <th>Amarilles Jugadors Visitant</th>
-            <th>Amarilles Cos Tècnic Local</th>
-            <th>Amarilles Cos Tècnic Visitant</th>
-            <th>Vermelles Jugadors Local</th>
-            <th>Vermelles Jugadors Visitant</th>
-            <th>Vermelles Cos Tècnic Local</th>
-            <th>Vermelles Cos Tècnic Visitant</th>
-            <th>Victòries Local</th>
-            <th>Victòries Visitant</th>
-            <th>Empats</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="estadistiquesArbitre in estadistiquesArbitres" :key="estadistiquesArbitre.arbitre">
-            <td>{{ estadistiquesArbitre.arbitre }}</td>
-            <td>{{ estadistiquesArbitre.numpartits }}</td>
-            <td>{{ estadistiquesArbitre.totalAmarillasJugadoresLocal }}</td>
-            <td>{{ estadistiquesArbitre.totalAmarillasJugadoresVisitante }}</td>
-            <td>{{ estadistiquesArbitre.totalAmarillasCuerpoTecnicoLocal }}</td>
-            <td>{{ estadistiquesArbitre.totalAmarillasCuerpoTecnicoVisitante }}</td>
-            <td>{{ estadistiquesArbitre.totalRojasJugadoresLocal }}</td>
-            <td>{{ estadistiquesArbitre.totalRojasJugadoresVisitante }}</td>
-            <td>{{ estadistiquesArbitre.totalRojasCuerpoTecnicoLocal }}</td>
-            <td>{{ estadistiquesArbitre.totalRojasCuerpoTecnicoVisitante }}</td>
-            <td>{{ estadistiquesArbitre.totalVictoriesLocal }}</td>
-            <td>{{ estadistiquesArbitre.totalVictoriesVisitante }}</td>
-            <td>{{ estadistiquesArbitre.totalEmpats }}</td>
-        </tr>
-    </tbody>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="mt-1">{{ estadistiquesArbitre.victoriasLocal }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.victoriasLocal / estadistiquesArbitre.numpartits * 100) }} %
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="mt-1">{{ estadistiquesArbitre.victoriasVisitante }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.victoriasVisitante / estadistiquesArbitre.numpartits * 100) }} %
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex">
+                                <span class="mt-1">{{ estadistiquesArbitre.empates }} </span>
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.empates / estadistiquesArbitre.numpartits * 100) }} %
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                <span class="text-sm text-gray-900 bg-gray-300 py-1 px-2 rounded-lg ml-4">{{ estadistiquesArbitre.numpartits }} partits </span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-</table>
-
-    <P>{{ arbitresSeleccionats }}</P>
-    <div v-for="arbitre in arbitresSeleccionats" :key="arbitre.id">
-        <p>{{ arbitre }}</p>
-</div>
-
-
-
-
-        </AuthenticatedLayout>
+    </AuthenticatedLayout>
 
 </template>
