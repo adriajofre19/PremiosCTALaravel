@@ -63,7 +63,7 @@ function limitarDecimals(num) {
 
     <AuthenticatedLayout>
 
-        <div class="max-w-sm mx-auto mt-12">
+        <form class="max-w-sm mx-auto mt-12 pl-4 pr-4 md:p-0"> 
             <button id="dropdownBgHoverButton" data-dropdown-toggle="dropdownBgHover"
                 class="text-gray-600 bg-white border border-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
                 type="button">Seleccionar àrbitres <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true"
@@ -75,7 +75,7 @@ function limitarDecimals(num) {
             <button
                 class="text-white bg-black font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center ml-4"
                 type="button" @click="filtrarPartits">Filtrar partits</button>
-        </div>
+        </form>
 
         <!-- Dropdown menu -->
         <div id="dropdownBgHover" class="z-10 hidden w-70 bg-white rounded-lg shadow h-64 overflow-x-auto">
@@ -86,14 +86,14 @@ function limitarDecimals(num) {
                             @click="addArbitre(arbitre)">
 
                         <label for="checkbox-item-4"
-                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">{{ arbitre
+                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded ">{{ arbitre
                             }}</label>
                     </div>
                 </li>
             </ul>
         </div>
 
-        <div class="max-w-full relative overflow-x-auto mt-8">
+        <div class="max-w-full hidden md:block overflow-x-auto mt-8 mx-8">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead class="text-xs bg-gray-800 text-white">
                     <tr>
@@ -195,6 +195,37 @@ function limitarDecimals(num) {
                 </tbody>
             </table>
         </div>
+
+<div class="md:hidden mt-4 rounded-lg">
+    <div v-for="estadistiquesArbitre in estadistiquesArbitres" :key="estadistiquesArbitre.id" class="bg-white m-4 border border-gray-300 rounded-lg pb-4">
+        <p class="text-gray-900 p-4 bg-gray-300">{{ estadistiquesArbitre.arbitre }}</p>
+        <p class="mt-4"></p>
+        <span class="text-gray-900 ml-4 bg-gray-300 py-1 px-2 rounded-lg mb-4 mt-8">{{ estadistiquesArbitre.numpartits }} partits</span>
+        <p class="text-gray-900 p-4">Jugadores:</p>
+        <span class="bg-yellow-400 py-1 px-3 rounded-lg ml-4 mr-4"></span>
+        <span class="text-gray-900">{{ estadistiquesArbitre.amarillasJugadoresLocal + estadistiquesArbitre.amarillasJugadoresVisitante }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4 mr-4">{{ limitarDecimals(estadistiquesArbitre.amarillasJugadoresLocal + estadistiquesArbitre.amarillasJugadoresVisitante / estadistiquesArbitre.numpartits) }} / partit</span>
+        <p class="mt-4"></p>
+        <span class="bg-red-500 py-1 px-3 rounded-lg ml-4 mr-4 mt-8"></span>
+        <span class="text-gray-900">{{ estadistiquesArbitre.rojasJugadoresLocal + estadistiquesArbitre.rojasJugadoresVisitante }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.rojasJugadoresLocal + estadistiquesArbitre.rojasJugadoresVisitante / estadistiquesArbitre.numpartits) }} / partit</span>
+        
+        <p class="text-gray-900 p-4">Cuerpo técnico:</p>
+        <span class="bg-yellow-400 py-1 px-3 rounded-lg ml-4 mr-4"></span>
+        <span class="text-gray-900">{{ estadistiquesArbitre.amarillasCuerpoTecnicoLocal + estadistiquesArbitre.amarillasCuerpoTecnicoVisitante }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.amarillasCuerpoTecnicoLocal + estadistiquesArbitre.amarillasCuerpoTecnicoVisitante / estadistiquesArbitre.numpartits) }} / partit</span>
+        <p class="mt-4"></p>
+        <span class="bg-red-500 py-1 px-3 rounded-lg ml-4 mr-4 mt-8"></span>
+        <span class="text-gray-900">{{ estadistiquesArbitre.rojasCuerpoTecnicoLocal + estadistiquesArbitre.rojasCuerpoTecnicoVisitante }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.rojasCuerpoTecnicoLocal + estadistiquesArbitre.rojasCuerpoTecnicoVisitante / estadistiquesArbitre.numpartits) }} / partit</span>
+
+        <p class="text-gray-900 p-4">Victorias:</p>
+        <span class="text-gray-900 ml-4">Local: {{ estadistiquesArbitre.victoriasLocal }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.victoriasLocal / estadistiquesArbitre.numpartits * 100) }} %</span>
+        <p class="mt-4"></p>
+        <span class="text-gray-900 ml-4">Visitante: {{ estadistiquesArbitre.victoriasVisitante }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.victoriasVisitante / estadistiquesArbitre.numpartits * 100) }} %</span>
+        <p class="mt-4"></p>
+        <span class="text-gray-900 ml-4">Empate: {{ estadistiquesArbitre.empates }}</span> <span class="bg-gray-300 py-1 px-3 rounded-lg ml-4">{{ limitarDecimals(estadistiquesArbitre.empates / estadistiquesArbitre.numpartits * 100) }} %</span>
+        <p class="mt-4"></p>
+        
+
+    </div>
+</div>
 
     </AuthenticatedLayout>
 

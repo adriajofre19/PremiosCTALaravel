@@ -276,7 +276,7 @@ const filtrarPartits = () => {
     </div>
 </section>
 
-<div v-if="partitsArbitreSeleccionat != ''" class="md:hidden  mt-4 rouded-lg">
+<div v-if="partitsArbitreSeleccionat != ''" class="md:hidden  mt-4 rounded-lg">
     <div v-for="partido in partitsArbitreSeleccionat" :key="partido.id" class="bg-white m-4 border border-gray-300 rounded-lg">
         <p class="text-gray-900 p-4 bg-gray-300">{{ partido.Jornada }}</p>
         <p class="text-gray-500 p-4">{{ partido.equipoLocal }} <span class="bg-gray-300 px-2 py-1 rounded-lg mx-2">{{ partido.resLocal }} - {{ partido.resVisitant }}</span> {{ partido.equipoVisitant }}</p>

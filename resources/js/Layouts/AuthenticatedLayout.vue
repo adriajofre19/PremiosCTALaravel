@@ -31,8 +31,6 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('partits.index')" :active="route().current('partits.index')">
                                     Veure els partits
                                 </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('arbitres.index')" :active="route().current('arbitres.index')">
                                     Comparar els àrbitres
                                 </NavLink>
