@@ -74,14 +74,14 @@ const filtrarPartits = () => {
 
 <AuthenticatedLayout>
 
-<form class="max-w-sm mx-auto mt-12">
+<form class="max-w-sm mx-auto mt-12 pl-4 pr-4 md:p-0">
   <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">Selecciona un àrbitre</label>
   <select v-model="arbitreSeleccionat" @change="filtrarPartits" id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
         <option v-for="arbitre in arbitres" :key="arbitre.id" :value="arbitre">{{ arbitre }}</option>
   </select>
 </form>
 
-<section v-if="partitsArbitreSeleccionat != ''">
+<section v-if="partitsArbitreSeleccionat != ''" class="hidden md:block">
     <div class="py-16">
         <div class="mx-auto px-6 max-w-full text-gray-500">
             <div class="relative">
@@ -275,6 +275,90 @@ const filtrarPartits = () => {
         </div>
     </div>
 </section>
+
+<div v-if="partitsArbitreSeleccionat != ''" class="md:hidden  mt-4 rouded-lg">
+    <div v-for="partido in partitsArbitreSeleccionat" :key="partido.id" class="bg-white m-4 border border-gray-300 rounded-lg">
+        <p class="text-gray-900 p-4 bg-gray-300">{{ partido.Jornada }}</p>
+        <p class="text-gray-500 p-4">{{ partido.equipoLocal }} <span class="bg-gray-300 px-2 py-1 rounded-lg mx-2">{{ partido.resLocal }} - {{ partido.resVisitant }}</span> {{ partido.equipoVisitant }}</p>
+        <span v-if="partido.ganador === 'Local'" class="ml-4 mb-4 mt-4 text-gray-500 bg-yellow-200 py-1 px-2 rounded-lg ">Ganador: {{ partido.ganador }}</span>
+        <span v-else-if="partido.ganador === 'Visitante'" class="ml-4 mb-4 mt-4 text-gray-500 bg-orange-200 py-1 px-2 rounded-lg ">Ganador: {{ partido.ganador }}</span>
+        <span v-else class="ml-4 mb-4 mt-4 text-gray-500 bg-green-200 py-1 px-2 rounded-lg ">Empate</span>
+        
+        <h1 class="ml-4 mb-2 text-gray-500 mt-4">{{ partido.equipoLocal }}</h1>
+        <div class="flex ml-4">
+            <span class="bg-yellow-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.AmarillasJugadoresLocal }}</span>
+            <span class="bg-red-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.RojasJugadoresLocal }}</span>
+            <span class="bg-yellow-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.AmarillasCuerpoTecnicoLocal }}</span>
+            <span class="bg-red-400 py-1 px-2 text-black rounded-md"> {{ partido.RojasCuerpoTecnicoLocal }}</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">{{ partido.equipoVisitant }}</h1>
+        <div class="flex ml-4 mb-4">
+            <span class="bg-yellow-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.AmarillasJugadoresVisitante }}</span>
+            <span class="bg-red-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.RojasJugadoresVisitante }}</span>
+            <span class="bg-yellow-400 py-1 px-2 mr-2 text-black rounded-md"> {{ partido.AmarillasCuerpoTecnicoVisitante }}</span>
+            <span class="bg-red-400 py-1 px-2 text-black rounded-md"> {{ partido.RojasCuerpoTecnicoVisitante }}</span>
+        </div>
+    </div>
+
+    <div class="bg-white m-4 border border-gray-300 rounded-lg">
+        <p class="text-gray-900 p-4 bg-gray-300">Esadisticas globales</p>
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Amarillas a jugadores</h1>
+        <div class="flex ml-4">
+            <span class="bg-yellow-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ totalAmarillesJugadors }}</span>
+            <span class="bg-gray-300 py-1 px-2 text-black rounded-md"> {{ limitarDecimals(totalAmarillesJugadors / totalPartits) }} / partit</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Rojas a jugadores</h1>
+        <div class="flex ml-4">
+            <span class="bg-red-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ totalRojasJugadors }}</span>
+            <span class="bg-gray-300 py-1 px-2 text-black rounded-md"> {{ limitarDecimals(totalRojasJugadors / totalPartits) }} / partit</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Amarillas a cuerpo técnico</h1>
+        <div class="flex ml-4">
+            <span class="bg-yellow-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ totalAmarillesCuerpoTecnico }}</span>
+            <span class="bg-gray-300 py-1 px-2 text-black rounded-md"> {{ limitarDecimals(totalAmarillesCuerpoTecnico / totalPartits) }} / partit</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Rojas a cuerpo técnico</h1>
+        <div class="flex ml-4">
+            <span class="bg-red-400 py-1 px-3 mr-2 text-black rounded-md"></span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ totalRojasCuerpoTecnico }}</span>
+            <span class="bg-gray-300 py-1 px-2 text-black rounded-md"> {{ limitarDecimals(totalRojasCuerpoTecnico / totalPartits) }} / partit</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Vicorias locales</h1>
+        <div class="flex ml-4">
+            <span class="bg-gray-300 py-1 px-3 mr-2 text-black rounded-md"> {{ totalVicoriasLocales }}</span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ limitarDecimals(totalVicoriasLocales / totalPartits * 100) }} %</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Vicorias visitantes</h1>
+        <div class="flex ml-4">
+            <span class="bg-gray-300 py-1 px-3 mr-2 text-black rounded-md"> {{ totalVicoriasVisitantes }}</span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ limitarDecimals(totalVicoriasVisitantes / totalPartits * 100) }} %</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Empates</h1>
+        <div class="flex ml-4">
+            <span class="bg-gray-300 py-1 px-3 mr-2 text-black rounded-md"> {{ totalEmpates }}</span>
+            <span class="py-1 px-2 text-black rounded-md mr-2"> {{ limitarDecimals(totalEmpates / totalPartits * 100) }} %</span>
+        </div>
+
+        <h1 class="ml-4 mb-2 mt-4 text-gray-500">Total partidos</h1>
+        <div class="flex ml-4 mb-4">
+            <span class="bg-gray-300 py-1 px-3 mr-2 text-black rounded-md"> {{ totalPartits }} partidos</span>
+        </div>
+
+    </div>
+    
+</div>
+
+
 
 </AuthenticatedLayout>
 
